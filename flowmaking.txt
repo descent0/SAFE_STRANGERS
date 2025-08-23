@@ -1,0 +1,23 @@
+see first i implement the greedy immediate pairing , but it have some problems 
+
+Issue 1: Perfect Pairing Problem
+The algorithm tries to pair every available user immediately
+This creates a scenario where everyone is either:
+Coupled (in active chat)
+Alone in queue (waiting)
+When users are perfectly paired, there are no free users for skipped users to match with
+Issue 2: Skip Functionality Breakdown ⏭️
+When a user skips their partner:
+Both users get disconnected
+Both need to find new partners
+But if everyone else is already paired → no one available
+Result: Users stuck in queue indefinitely
+
+
+
+
+//now i decided to move to pool based matching to solve this issue.
+
+
+
+
