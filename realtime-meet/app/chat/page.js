@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
+import useNSFWDetection from '../hooks/useNSFWDetection'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useAnonymousChat } from '../hooks/useAnonymousChat'
 import { useWebRTC } from '../hooks/useWebRTC'
@@ -28,6 +29,12 @@ function ChatContent() {
   const remoteVideoRef = useRef(null)
   const chatContainerRef = useRef(null)
   const typingTimeoutRef = useRef(null)
+
+    // NSFW detection: disconnect and alert offending user
+    // useNSFWDetection(remoteVideoRef, () => {
+    //   alert('NSFW content detected. You have been disconnected.')
+    //   handleDisconnect()
+    // })
 
   // Move handlePartnerDisconnected definition above useWebRTC
   const handlePartnerDisconnected = useCallback(() => {
