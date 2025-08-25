@@ -174,6 +174,15 @@ function ChatContent() {
     }
   }, [remoteStreams])
 
+    // Handle local video stream
+    useEffect(() => {
+      if (localStream && localVideoRef.current) {
+        localVideoRef.current.srcObject = localStream;
+        // Ensure video track is enabled
+        const tracks = localStream.getVideoTracks();
+        tracks.forEach(track => track.enabled = true);
+      }
+    }, [localStream]);
   // Auto-scroll chat to bottom
   useEffect(() => {
     if (chatContainerRef.current) {
@@ -359,13 +368,24 @@ function ChatContent() {
           {/* Local Video (Picture-in-Picture) */}
           {(mode === 'video' || mode === 'voice') && (
             <div className="absolute top-4 right-4 w-48 h-36 bg-black rounded-lg overflow-hidden border-2 border-gray-600 z-10">
-              <video
-                ref={localVideoRef}
-                autoPlay
-                playsInline
-                muted
-                className={`w-full h-full object-cover ${mode === 'voice' || isVideoOff ? 'hidden' : ''}`}
-              />
+                <video
+                  ref={el => {
+                    localVideoRef.current = el;
+                    if (el) {
+                      console.log('[VIDEO] Local video element rendered:', el);
+                      if (localStream) {
+                        console.log('[VIDEO] Assigning localStream to localVideoRef:', localStream);
+                        el.srcObject = localStream;
+                      } else {
+                        console.log('[VIDEO] No localStream available for localVideoRef');
+                      }
+                    }
+                  }}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={`w-full h-full object-cover ${mode === 'voice' || isVideoOff ? 'hidden' : ''}`}
+                />
               {(mode === 'voice' || isVideoOff) && (
                 <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                   <div className="text-4xl">🎤</div>
