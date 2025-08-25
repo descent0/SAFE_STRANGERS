@@ -1,9 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
+import SafetyModal from './components/SafetyModal'
 
 export default function Home() {
+  const router = useRouter();
   const [interests, setInterests] = useState([])
   const [newInterest, setNewInterest] = useState('')
   const [isMatching, setIsMatching] = useState(false)
@@ -12,6 +15,7 @@ export default function Home() {
   const [showSafetyModal, setShowSafetyModal] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
+  // Enhanced available interests (more comprehensive list)
   const availableInterests = [
     'Music', 'Movies', 'Gaming', 'Sports', 'Technology', 'Art', 'Books', 
     'Travel', 'Food', 'Photography', 'Fitness', 'Science', 'Politics',
@@ -43,20 +47,42 @@ export default function Home() {
     }
   }
 
+  // Enhanced matching with safety modal system
   const startMatching = async () => {
+    // Check if user has accepted safety guidelines
+    const hasAcceptedSafety = localStorage.getItem('acceptedSafetyGuidelines')
+    if (!hasAcceptedSafety) {
+      setShowSafetyModal(true)
+      return
+    }
+    
+    await proceedWithMatching()
+  }
+
+  const proceedWithMatching = async () => {
     setIsMatching(true)
     
     try {
+      // Store preferences in browser storage
+      sessionStorage.setItem('chatInterests', JSON.stringify(interests))
+      sessionStorage.setItem('safeMode', safeMode.toString())
+      
       const sessionId = uuidv4()
-      // Simulate matching delay
+      // Simulate matching delay with better error handling
       await new Promise(resolve => setTimeout(resolve, 2000))
-      alert(`Would redirect to: /chat?sessionId=${sessionId}&mode=${chatMode}`)
+      router.push(`/chat?sessionId=${sessionId}&mode=${chatMode}`)
     } catch (error) {
       console.error('Error starting matching:', error)
       alert('Failed to start matching. Please try again.')
     } finally {
       setIsMatching(false)
     }
+  }
+
+  const handleAcceptSafety = () => {
+    localStorage.setItem('acceptedSafetyGuidelines', 'true')
+    setShowSafetyModal(false)
+    proceedWithMatching()
   }
 
   const features = [
@@ -133,8 +159,6 @@ export default function Home() {
               Connect instantly with people worldwide through video, voice, or text. 
               AI-powered matching, complete anonymity, and industry-leading safety features.
             </p>
-
-
           </div>
 
           {/* Main Chat Setup Card */}
@@ -194,9 +218,9 @@ export default function Home() {
                     </div>
                   )}
                   
-                  {/* Available interests */}
+                  {/* Available interests - showing first 6 like Document 1 */}
                   <div className="grid grid-cols-3 gap-2 text-xs mb-3">
-                    {availableInterests.slice(0, 9).map((interest) => (
+                    {availableInterests.slice(0, 6).map((interest) => (
                       <button
                         key={interest}
                         onClick={() => addInterest(interest)}
@@ -356,7 +380,6 @@ export default function Home() {
                   <p className="text-gray-600 mb-6 font-medium">
                     No registration required. No personal information stored. Complete privacy protection.
                   </p>
-                
                 </div>
               </div>
             </div>
@@ -425,6 +448,13 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Safety Modal */}
+      <SafetyModal
+        isVisible={showSafetyModal}
+        onClose={() => setShowSafetyModal(false)}
+        onAccept={handleAcceptSafety}
+      />
     </div>
   )
 }
