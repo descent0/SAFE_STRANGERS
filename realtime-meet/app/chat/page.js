@@ -44,6 +44,7 @@ function ChatContent() {
   const {
     localStream,
     remoteStreams,
+    connectionStatus,
     toggleAudio,
     toggleVideo,
     initializeMedia,
@@ -72,6 +73,7 @@ function ChatContent() {
   }, [])
 
   const handleMessage = useCallback((message) => {
+    console.log("message is being handled");
     setMessages(prev => [...prev, message])
   }, [])
 
@@ -91,12 +93,9 @@ function ChatContent() {
     }
   }, [mode])
 
-  // ...existing code...
-
   const {
     socket,
     isConnected,
-    connectionStatus,
     partner,
     queuePosition,
     joinAnonymousChat,
@@ -105,14 +104,7 @@ function ChatContent() {
     sendReaction,
     skipPartner,
     leaveChat
-  } = useAnonymousChat(
-    sessionId,
-    mode,
-    handleMatchFound,
-    handlePartnerDisconnected,
-    handleMessage,
-    process.env.NEXT_PUBLIC_CHAT_SERVER_URL // Pass chat server URL from env
-  )
+  } = useAnonymousChat(sessionId, mode, handleMatchFound, handlePartnerDisconnected, handleMessage)
 
   // Initialize media and join chat on component mount
   useEffect(() => {
@@ -220,22 +212,19 @@ function ChatContent() {
     }, 1000)
   }, [isTyping, sendTyping])
 
-  const handleSkip = () => {
-    console.log('[MATCHING] 🔀 Skipping current partner')
-    // Clean up WebRTC connections before skipping
-    if (remoteStreams.size > 0) {
-      Array.from(remoteStreams.keys()).forEach(peerId => {
-        console.log('[WEBRTC] 🧹 Cleaning up peer connection before skip:', peerId)
-        removePeer(peerId)
-      })
-    }
-    // Clear current chat state
-    setMessages([])
-    setReactions([])
-    setPartnerTyping(false)
-    // Skip partner - let the server response handle isMatched state
-    skipPartner()
+  const handleSkip = async () => {
+  console.log('[MATCHING] 🔀 Skipping current partner');
+  // Clean up WebRTC connections before skipping
+  if (remoteStreams.size > 0) {
+    await Promise.all(Array.from(remoteStreams.keys()).map(peerId => removePeer(peerId)));
   }
+  // Clear current chat state
+  setMessages([]);
+  setReactions([]);
+  setPartnerTyping(false);
+  // Skip partner - let the server response handle isMatched state
+  await skipPartner();
+};
 
   const handleToggleAudio = () => {
     console.log('[MEDIA] Toggling audio. Current muted:', isAudioMuted)
@@ -396,8 +385,6 @@ function ChatContent() {
               {connectionStatus === 'connected' ? '🟢 Connected' :
                connectionStatus === 'connecting' ? '🟡 Connecting...' :
                connectionStatus === 'disconnected' ? '🔴 Disconnected' :
-               connectionStatus === 'skipping' ? '⏭️ Skipping...' :
-               connectionStatus === 'queued' ? '⏳ In Queue' :
                '🟡 Connecting...'}
             </div>
           </div>
