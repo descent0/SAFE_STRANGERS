@@ -174,7 +174,7 @@ function ChatContent() {
     }
   }, [remoteStreams])
 
-    // Handle local video stream
+    // Handle local video stream of the locl user 
     useEffect(() => {
       if (localStream && localVideoRef.current) {
         localVideoRef.current.srcObject = localStream;
