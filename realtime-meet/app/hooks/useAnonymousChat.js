@@ -195,6 +195,7 @@ export const useAnonymousChat = (sessionId, chatMode, onMatchFound, onPartnerDis
 
     socket.emit('anonymous-chat-message', {
       sessionId,
+      safeMode: userPreferences?.safeMode || false,
       message: trimmedMessage
     })
     

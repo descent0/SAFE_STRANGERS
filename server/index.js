@@ -242,15 +242,16 @@ io.on('connection', (socket) => {
   })
 
   // Handle chat messages
-  socket.on('anonymous-chat-message', ({ sessionId, message }) => {
+  socket.on('anonymous-chat-message', ({ sessionId,safeMode, message }) => {
     const partnerId = ServerState.activeChats.get(socket.id)
     
     if (!partnerId) {
       socket.emit('error', { message: 'No active chat partner' })
       return
     }
-    
-    const sanitizedMessage = MessageUtils.sanitize(message)
+     
+     
+    const sanitizedMessage = safeMode?MessageUtils.sanitize(message):message;
     if (sanitizedMessage === null) {
       socket.emit('message-blocked', { 
         reason: 'Message contains inappropriate content' 

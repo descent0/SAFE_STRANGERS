@@ -30,11 +30,24 @@ function ChatContent() {
   const chatContainerRef = useRef(null)
   const typingTimeoutRef = useRef(null)
 
+
+    const [safeMode, setSafeMode] = useState(false) 
+
+  useEffect(() => {
+    const safeModeValue = sessionStorage.getItem('safeMode') === 'true'
+    setSafeMode(safeModeValue)
+    console.log('Safe mode loaded:', safeModeValue)
+  }, [])
+
     // NSFW detection: disconnect and alert offending user
-    // useNSFWDetection(remoteVideoRef, () => {
-    //   alert('NSFW content detected. You have been disconnected.')
-    //   handleDisconnect()
-    // })
+  useNSFWDetection(
+    remoteVideoRef, 
+    () => {
+      alert('NSFW content detected. You have been disconnected.')
+      // handleDisconnect()
+    },
+    safeMode && mode !== 'text' // Enable only when conditions are met
+  )
 
   // Move handlePartnerDisconnected definition above useWebRTC
   const handlePartnerDisconnected = useCallback(() => {
@@ -379,12 +392,8 @@ function ChatContent() {
                   ref={el => {
                     localVideoRef.current = el;
                     if (el) {
-                      console.log('[VIDEO] Local video element rendered:', el);
                       if (localStream) {
-                        console.log('[VIDEO] Assigning localStream to localVideoRef:', localStream);
                         el.srcObject = localStream;
-                      } else {
-                        console.log('[VIDEO] No localStream available for localVideoRef');
                       }
                     }
                   }}
