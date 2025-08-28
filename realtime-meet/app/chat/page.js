@@ -44,7 +44,7 @@ function ChatContent() {
     remoteVideoRef, 
     () => {
       alert('NSFW content detected. You have been disconnected.')
-      // handleDisconnect()
+      handleSkip()
     },
     safeMode && mode !== 'text' // Enable only when conditions are met
   )
