@@ -163,8 +163,17 @@ export default function Home() {
 
           {/* Main Chat Setup Card */}
           <div className="max-w-lg mx-auto">
-            <div className="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-xl">
-              <div className="space-y-6">
+            <div className="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-xl relative">
+              {/* Overlay to disable only this card when matching */}
+              {isMatching && (
+                <div className="absolute inset-0 bg-black bg-opacity-20 z-20 flex items-center justify-center pointer-events-auto" style={{borderRadius: '1rem'}}>
+                  <div className="flex flex-col items-center">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white mb-2"></div>
+                    <div className="text-white text-base font-semibold">Finding Your Match...</div>
+                  </div>
+                </div>
+              )}
+              <div className={`space-y-6 ${isMatching ? 'pointer-events-none opacity-60' : ''}`}> 
                 {/* Chat Mode Selection */}
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-3">
