@@ -1,13 +1,13 @@
 const { MODERATION } = require('../config/constants')
 
-// Matching algorithm utilities
+// Matching algorithm
 const MatchingUtils = {
   calculateScore: (user1, user2) => {
     const interests1 = user1.interests || []
     const interests2 = user2.interests || []
     
     if (interests1.length === 0 && interests2.length === 0) {
-      return Math.random() // Random matching for users with no interests
+      return Math.random()
     }
     
     let commonInterests = 0
@@ -18,13 +18,12 @@ const MatchingUtils = {
     for (const interest1 of interests1) {
       for (const interest2 of interests2) {
         if (interest1.toLowerCase() === interest2.toLowerCase()) {
-          commonInterests += 2 // Exact match
+          commonInterests += 2 
         } else {
-          // Check category matches
           for (const [category, keywords] of Object.entries(MODERATION.interestCategories)) {
             if (keywords.includes(interest1.toLowerCase()) && 
                 keywords.includes(interest2.toLowerCase())) {
-              commonInterests += 1 // Category match
+              commonInterests += 1
               break
             }
           }
@@ -34,9 +33,8 @@ const MatchingUtils = {
     
     const baseScore = commonInterests / totalInterests
     
-    // Add randomization factors to make matching less predictable
-    const randomVariance = (Math.random() - 0.5) * 0.3 // ±15% random variance
-    const timeVariance = Math.sin(Date.now() / 100000) * 0.1 // Time-based variance
+    const randomVariance = (Math.random() - 0.5) * 0.3
+    const timeVariance = Math.sin(Date.now() / 100000) * 0.1 
     
     return Math.max(0, Math.min(1, baseScore + randomVariance + timeVariance))
   },
@@ -49,7 +47,6 @@ const MatchingUtils = {
       return false
     }
     
-    // Only check socket if io is provided (skip when called from cleanInvalid without io)
     if (io) {
       const userSocket = io.sockets.sockets.get(user.socketId)
       if (!userSocket) {

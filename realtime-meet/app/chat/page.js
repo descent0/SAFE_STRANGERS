@@ -7,12 +7,12 @@ import { useAnonymousChat } from '../hooks/useAnonymousChat'
 import { useWebRTC } from '../hooks/useWebRTC'
 import MatchingQueue from '../components/MatchingQueue'
 
-// Create a separate component that uses useSearchParams
 function ChatContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const sessionId = searchParams.get('sessionId')
-  // Use environment variable for default mode
+ 
+  //get the deafault mode , if none exist
   const mode = searchParams.get('mode') || process.env.NEXT_PUBLIC_CHAT_MODE || 'video'
   
   const [isMatched, setIsMatched] = useState(false)
@@ -46,18 +46,17 @@ function ChatContent() {
       alert('NSFW content detected. You have been disconnected.')
       handleSkip()
     },
-    safeMode && mode !== 'text' // Enable only when conditions are met
+    safeMode && mode !== 'text' 
   )
 
-  // Move handlePartnerDisconnected definition above useWebRTC
+  
   const handlePartnerDisconnected = useCallback(() => {
-    console.log('[MATCHING] 💔 Partner disconnected - resetting match state')
+    console.log('[MATCHING] Partner disconnected')
     setIsMatched(false)
     setPartnerSessionId(null)
     setPartnerTyping(false)
     setMessages([])
     setReactions([])
-    // Peer cleanup is handled inside useWebRTC
   }, [])
 
   const webRTCHandlers = useWebRTC(localVideoRef, handlePartnerDisconnected)
@@ -75,7 +74,7 @@ function ChatContent() {
     removePeer
   } = webRTCHandlers
 
-  // Set up global functions for the anonymous chat hook
+  
   useEffect(() => {
     window.setPartnerTyping = setPartnerTyping
     window.addReaction = (emoji) => {
@@ -98,12 +97,12 @@ function ChatContent() {
   }, [])
 
   const handleMatchFound = useCallback(({ partnerId, partnerInterests, skipped }) => {
-    console.log('[MATCHING] 🎯 Match found in chat page:', { partnerId, partnerInterests, skipped, mode })
+    console.log('Match found in chat page:', { partnerId, partnerInterests, skipped, mode })
     setPartnerSessionId(partnerId)
     setIsMatched(true)
-    // Force UI update in case state is out of sync
+    
     setTimeout(() => {
-      console.log('[MATCHING] Forcing UI update after match found', { partnerId })
+      console.log('Forcing UI update after match found', { partnerId })
       setIsMatched(true)
       setPartnerSessionId(partnerId)
     }, 100)

@@ -4,20 +4,17 @@ const http = require('http')
 const socketIo = require('socket.io')
 const cors = require('cors')
 
-// Import configuration and state
 const { CONFIG } = require('./config/constants')
 const ServerState = require('./state/serverState')
 
-// Import utilities
+
 const MatchManager = require('./managers/matchManager')
 const PoolManager = require('./managers/poolManager')
 const MessageUtils = require('./utils/messageUtils')
 
-// Initialize Express app and server
 const app = express()
 const server = http.createServer(app)
 
-// CORS configuration
 const corsOptions = {
   origin: CONFIG.CLIENT_URLS,
   credentials: true
@@ -26,7 +23,7 @@ const corsOptions = {
 app.use(cors(corsOptions))
 app.use(express.json())
 
-// Initialize Socket.IO
+
 const io = socketIo(server, {
   cors: {
     origin: CONFIG.CLIENT_URLS,
@@ -36,10 +33,9 @@ const io = socketIo(server, {
   transports: ['websocket', 'polling']
 })
 
-// WebRTC connection tracking
+
 const webrtcConnections = new Map()
 
-// Cleanup utility functions
 const cleanupUser = (socketId) => {
   const user = ServerState.connectedUsers.get(socketId)
   
@@ -50,28 +46,25 @@ const cleanupUser = (socketId) => {
     console.log(`Removed ${socketId.slice(-4)} from queue. Size: ${ServerState.waitingQueue.length}`)
   }
   
-  // Handle active chat cleanup
+
   const partnerId = ServerState.activeChats.get(socketId)
   if (partnerId) {
     handlePartnerDisconnect(socketId, partnerId)
   }
   
-  // Clean up WebRTC connection tracking
+
   for (const [connectionKey, connection] of webrtcConnections.entries()) {
     if (connection.initiator === socketId || connection.receiver === socketId) {
       webrtcConnections.delete(connectionKey)
     }
   }
-  
-  // Remove from session mapping
+
   if (user?.sessionId) {
     ServerState.userSessions.delete(user.sessionId)
   }
-  
-  // Remove from connected users
+ 
   ServerState.connectedUsers.delete(socketId)
 
-  // Extra cleanup: Remove any references to this user as a partner
   for (const [otherId, otherUser] of ServerState.connectedUsers.entries()) {
     if (otherUser.partnerId === socketId) {
       otherUser.hasPartner = false;
@@ -87,7 +80,6 @@ const cleanupUser = (socketId) => {
 
   console.log(`Cleaned up user ${socketId.slice(-4)}. Active: ${ServerState.connectedUsers.size}, Queue: ${ServerState.waitingQueue.length}, Chats: ${ServerState.activeChats.size}`)
 
-  // Trigger pool-based matching after cleanup (no delay needed)
   if (ServerState.waitingQueue.length >= 2) {
     PoolManager.processBatchMatching(io, ServerState, MatchManager)
   }

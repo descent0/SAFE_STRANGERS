@@ -15,7 +15,7 @@ export default function Home() {
   const [showSafetyModal, setShowSafetyModal] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
-  // Enhanced available interests (more comprehensive list)
+  
   const availableInterests = [
     'Music', 'Movies', 'Gaming', 'Sports', 'Technology', 'Art', 'Books', 
     'Travel', 'Food', 'Photography', 'Fitness', 'Science', 'Politics',
@@ -47,7 +47,7 @@ export default function Home() {
     }
   }
 
-  // Enhanced matching with safety modal system
+  
   const startMatching = async () => {
     // Check if user has accepted safety guidelines
     const hasAcceptedSafety = localStorage.getItem('acceptedSafetyGuidelines')
@@ -68,8 +68,6 @@ export default function Home() {
       sessionStorage.setItem('safeMode', safeMode.toString())
       
       const sessionId = uuidv4()
-      // Simulate matching delay with better error handling
-      await new Promise(resolve => setTimeout(resolve, 2000))
       router.push(`/chat?sessionId=${sessionId}&mode=${chatMode}`)
     } catch (error) {
       console.error('Error starting matching:', error)
@@ -112,7 +110,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-black overflow-x-hidden">
-      {/* Navigation */}
+
+  
       <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
@@ -130,12 +129,11 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 to-blue-50">
-        {/* Elegant Background Pattern */}
+    
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-black/5"></div>
-          {/* Subtle geometric shapes */}
+       
           <div className="absolute top-20 left-20 w-64 h-64 border border-blue-200 rounded-full opacity-20"></div>
           <div className="absolute bottom-32 right-20 w-80 h-80 border border-black/10 rounded-full opacity-30"></div>
           <div className="absolute top-1/2 left-1/3 w-32 h-32 bg-blue-500/10 rounded-lg rotate-45 opacity-40"></div>
@@ -161,10 +159,9 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Main Chat Setup Card */}
+
           <div className="max-w-lg mx-auto">
             <div className="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-xl relative">
-              {/* Overlay to disable only this card when matching */}
               {isMatching && (
                 <div className="absolute inset-0 bg-black bg-opacity-20 z-20 flex items-center justify-center pointer-events-auto" style={{borderRadius: '1rem'}}>
                   <div className="flex flex-col items-center">
@@ -174,7 +171,7 @@ export default function Home() {
                 </div>
               )}
               <div className={`space-y-6 ${isMatching ? 'pointer-events-none opacity-60' : ''}`}> 
-                {/* Chat Mode Selection */}
+              
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-3">
                     Choose Your Experience
@@ -201,13 +198,13 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Interests Selection */}
+               
                 <div>
                   <label className="block text-sm font-semibold text-gray-800 mb-3">
                     Your Interests <span className="text-gray-500 font-normal">(Optional - up to 5)</span>
                   </label>
                   
-                  {/* Selected interests */}
+            
                   {interests.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-3">
                       {interests.map((interest) => (
@@ -227,7 +224,7 @@ export default function Home() {
                     </div>
                   )}
                   
-                  {/* Available interests - showing first 6 like Document 1 */}
+                
                   <div className="grid grid-cols-3 gap-2 text-xs mb-3">
                     {availableInterests.slice(0, 6).map((interest) => (
                       <button
@@ -240,8 +237,9 @@ export default function Home() {
                       </button>
                     ))}
                   </div>
+
                   
-                  {/* Custom interest */}
+                 
                   <div className="flex space-x-2">
                     <input
                       type="text"
@@ -261,7 +259,8 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Safe Mode Toggle */}
+
+
                 <div className="flex items-center justify-between p-4 bg-green-50 rounded-xl border border-green-200">
                   <div className="flex items-center">
                     <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
@@ -283,7 +282,7 @@ export default function Home() {
                   </label>
                 </div>
 
-                {/* Start Button */}
+               
                 <button
                   onClick={startMatching}
                   disabled={isMatching}
@@ -314,7 +313,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
+   
+
+
       <section id="features" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
@@ -348,7 +349,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Safety Section */}
+    
+
+
       <section id="safety" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -396,7 +399,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
+     
       <section className="py-20 bg-blue-50">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-3xl md:text-4xl font-bold text-black mb-6">
@@ -412,7 +415,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
+
       <footer id="contact" className="bg-black text-white">
         <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -458,7 +461,9 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Safety Modal */}
+   
+
+   
       <SafetyModal
         isVisible={showSafetyModal}
         onClose={() => setShowSafetyModal(false)}

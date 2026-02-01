@@ -1,6 +1,5 @@
 const MatchingUtils = require('../utils/matchingUtils')
 
-// Match management utilities - functional approach
 const MatchManager = {
   create(user1, user2, io, ServerState) {
     // Prevent self-matching at final step
@@ -19,6 +18,7 @@ const MatchManager = {
     // Set up chat connection
     ServerState.activeChats.set(user1.socketId, user2.socketId)
     ServerState.activeChats.set(user2.socketId, user1.socketId)
+    
     // Ensure user objects have correct partnerId for signaling
     const userObj1 = ServerState.connectedUsers.get(user1.socketId)
     const userObj2 = ServerState.connectedUsers.get(user2.socketId)

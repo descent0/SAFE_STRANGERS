@@ -37,6 +37,7 @@ export const useAnonymousChat = (sessionId, chatMode, onMatchFound, onPartnerDis
     setIsJoining(false)
   }, [])
 
+  
   // Socket event handlers organized by category
   const setupConnectionHandlers = useCallback((newSocket) => {
     newSocket.on('connect', () => {
@@ -127,6 +128,13 @@ export const useAnonymousChat = (sessionId, chatMode, onMatchFound, onPartnerDis
     })
   }, [onMessage])
 
+
+
+
+
+
+
+
   // Main effect to set up socket connection and handlers
   useEffect(() => {
     if (!sessionId) return
@@ -147,6 +155,11 @@ export const useAnonymousChat = (sessionId, chatMode, onMatchFound, onPartnerDis
       newSocket.disconnect()
     }
   }, [sessionId, setupConnectionHandlers, setupMatchingHandlers, setupMessageHandlers])
+
+
+
+
+
 
   // Helper function to validate socket and session
   const isValidConnection = useCallback(() => {
