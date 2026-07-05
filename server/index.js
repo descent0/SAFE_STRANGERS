@@ -287,16 +287,33 @@ io.on('connection', (socket) => {
     }
   })
 
-  // Handle reactions
-  socket.on('anonymous-reaction', ({ sessionId, emoji }) => {
+  // Handle reactions from both the legacy and V2 frontend event names.
+  const handleReaction = ({ emoji, to }) => {
     const partnerId = ServerState.activeChats.get(socket.id)
-    if (partnerId) {
-      console.log(`Reaction: ${socket.id} -> ${partnerId}: ${emoji}`)
-      const partnerSocket = io.sockets.sockets.get(partnerId)
-      if (partnerSocket) {
-        partnerSocket.emit('partner-reaction', { emoji })
-      }
+
+    if (!partnerId) {
+      socket.emit('error', { message: 'No active chat partner' })
+      return
     }
+
+    if (to && to !== partnerId) {
+      socket.emit('error', { message: 'Invalid reaction target' })
+      return
+    }
+
+    console.log(`Reaction: ${socket.id} -> ${partnerId}: ${emoji}`)
+    const partnerSocket = io.sockets.sockets.get(partnerId)
+    if (partnerSocket) {
+      partnerSocket.emit('partner-reaction', { emoji })
+    }
+  }
+
+  socket.on('anonymous-reaction', ({ emoji, to }) => {
+    handleReaction({ emoji, to })
+  })
+
+  socket.on('send-reaction', ({ emoji, to }) => {
+    handleReaction({ emoji, to })
   })
 
   // FIXED: Better partner skip handling

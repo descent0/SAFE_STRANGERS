@@ -24,13 +24,17 @@ const MatchManager = {
     const userObj2 = ServerState.connectedUsers.get(user2.socketId)
     if (userObj1) userObj1.partnerId = user2.socketId
     if (userObj2) userObj2.partnerId = user1.socketId
+
+    // Choose one side deterministically so the frontend can decide who creates
+    // the initial WebRTC offer without any extra round trip.
+    const initiatorSocketId = [user1.socketId, user2.socketId].sort()[0]
     
     // Update user status
     this.updateUserStatus(user1.socketId, user2.socketId, true, ServerState)
     this.updateUserStatus(user2.socketId, user1.socketId, true, ServerState)
     
     // Notify both users
-    this.notifyUsers(user1, user2, io)
+    this.notifyUsers(user1, user2, io, initiatorSocketId)
     
     console.log(`💑 Match created: ${user1.socketId.slice(-4)} ↔ ${user2.socketId.slice(-4)}`)
     return true
@@ -52,7 +56,7 @@ const MatchManager = {
     }
   },
 
-  notifyUsers(user1, user2, io) {
+  notifyUsers(user1, user2, io, initiatorSocketId) {
     const socket1 = io.sockets.sockets.get(user1.socketId)
     const socket2 = io.sockets.sockets.get(user2.socketId)
 
@@ -61,6 +65,7 @@ const MatchManager = {
       socket1.emit('anonymous-match-found', {
         partnerId: user2.socketId,
         partnerInterests: user2.interests || [],
+        isWebRTCInitator: user1.socketId === initiatorSocketId,
         matchScore: MatchingUtils.calculateScore(user1, user2)
       })
     } else {
@@ -72,6 +77,7 @@ const MatchManager = {
       socket2.emit('anonymous-match-found', {
         partnerId: user1.socketId,
         partnerInterests: user1.interests || [],
+        isWebRTCInitator: user2.socketId === initiatorSocketId,
         matchScore: MatchingUtils.calculateScore(user1, user2)
       })
     } else {
