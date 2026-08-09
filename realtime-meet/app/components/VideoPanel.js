@@ -21,11 +21,11 @@ export default function VideoPanel({
       : 'Disconnected'
 
   return (
-    <div className={`relative flex-1 h-full overflow-hidden ${mode === 'text' ? 'hidden' : ''}`}>
+    <div className={`relative flex-1 min-h-[24rem] overflow-hidden ${mode === 'text' ? 'hidden' : ''}`}>
      
-      <div className="relative flex h-full flex-col ">
+      <div className="relative flex h-full min-h-[24rem] flex-col sm:min-h-[30rem]">
 
-        <div className="relative flex min-h-0 flex-1 overflow-hidden  rounded-t-[1.75rem] border border-white/10 bg-slate-900/80 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+        <div className="relative flex min-h-[18rem] flex-1 overflow-hidden rounded-t-[1.75rem] border border-white/10 bg-slate-900/80 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:min-h-0">
          
           {remoteStream && (mode === 'video' || mode === 'voice') ? (
             <video
@@ -42,7 +42,7 @@ export default function VideoPanel({
           )}
 
           {(mode === 'video' || mode === 'voice') && (
-            <div className="absolute right-4 top-4 z-10 w-32 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/75 shadow-2xl backdrop-blur-xl sm:w-40 md:w-44">
+            <div className="absolute right-3 top-3 z-10 w-28 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/75 shadow-2xl backdrop-blur-xl sm:right-4 sm:top-4 sm:w-40 md:w-44">
               <div className="flex items-center justify-between border-b border-white/10 px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-slate-400">
               
                 <span>You</span>
@@ -65,7 +65,7 @@ export default function VideoPanel({
             </div>
           )}
 
-          <div className="absolute left-4 top-4 z-10 rounded-full border border-white/10 bg-slate-950/70 px-3 py-1 text-xs font-medium text-slate-200 backdrop-blur-xl">
+          <div className="absolute left-3 top-3 z-10 rounded-full border border-white/10 bg-slate-950/70 px-3 py-1 text-xs font-medium text-slate-200 backdrop-blur-xl sm:left-4 sm:top-4">
             Secure session
           </div>
            <div
@@ -80,7 +80,7 @@ export default function VideoPanel({
             {statusLabel}
           </div>
 
-          <div className="absolute bottom-4 left-4 z-10 rounded-full border border-white/10 bg-slate-950/70 px-3 py-1 text-xs font-medium text-slate-200 backdrop-blur-xl">
+          <div className="absolute bottom-3 left-3 z-10 rounded-full border border-white/10 bg-slate-950/70 px-3 py-1 text-xs font-medium text-slate-200 backdrop-blur-xl sm:bottom-4 sm:left-4">
             {mode === 'video' ? 'Camera + mic' : mode === 'voice' ? 'Mic only' : 'Text only'}
           </div>
         </div>

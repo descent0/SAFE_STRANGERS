@@ -16,7 +16,7 @@ export const getStatusMessage = (connectionStatus) => {
 }
 
 export const waitingMessages = [
-  'Make sure your camera and microphone are working',
+  'Everyone is busy chatting. Please wait...',
   'Think of interesting conversation starters',
   'Remember to be respectful and kind',
   'You can skip to the next person anytime',

@@ -201,9 +201,9 @@ export function ChatContent() {
     if (!sessionId) return null
     
     return (
-        <div className="relative h-screen flex flex-row  gap-4  bg-slate-900/80 overflow-hidden p-5  text-white">
+        <div className="relative flex sm:h-screen  flex-col gap-3 overflow-hidden bg-slate-900/80 p-3 text-white sm:gap-4 sm:p-4 sm:flex-row lg:p-5">
 
-                <div className="min-w-0 flex flex-[2] flex-col   rounded-[1.75rem] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.05),_transparent_42%),linear-gradient(180deg,_rgba(15,23,42,0.92),_rgba(2,6,23,0.98))] ">
+                <div className="min-w-0 flex flex-[2] flex-col overflow-hidden rounded-[1.75rem] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.05),_transparent_42%),linear-gradient(180deg,_rgba(15,23,42,0.92),_rgba(2,6,23,0.98))]">
                  
                         <VideoPanel
                             mode={chatMode}
@@ -232,8 +232,8 @@ export function ChatContent() {
              
                 </div>
 
-                <div className="min-w-0 flex-1  rounded-[1.75rem] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.05),_transparent_42%),linear-gradient(180deg,_rgba(15,23,42,0.92),_rgba(2,6,23,0.98))]">
-                    <div className="relative flex min-h-[30rem] h-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/55 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl">
+                <div className="min-w-0 flex-1 overflow-hidden rounded-[1.75rem] bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.05),_transparent_42%),linear-gradient(180deg,_rgba(15,23,42,0.92),_rgba(2,6,23,0.98))]">
+                    <div className="relative flex min-h-[24rem] h-full flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-slate-950/55 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-2xl sm:min-h-[30rem]">
                         <ChatPanel
                             partner={partner}
                             sessionId={sessionId}

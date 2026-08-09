@@ -176,7 +176,7 @@ export default function Home() {
                   <label className="block text-sm font-semibold text-gray-800 mb-3">
                     Choose Your Experience
                   </label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     {[
                       { mode: 'video', icon: '🎥', label: 'Video' },
                       { mode: 'voice', icon: '🎙️', label: 'Voice' },
@@ -225,7 +225,7 @@ export default function Home() {
                   )}
                   
                 
-                  <div className="grid grid-cols-3 gap-2 text-xs mb-3">
+                  <div className="mb-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
                     {availableInterests.slice(0, 6).map((interest) => (
                       <button
                         key={interest}
@@ -240,13 +240,13 @@ export default function Home() {
 
                   
                  
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:space-x-2 sm:gap-0">
                     <input
                       type="text"
                       value={newInterest}
                       onChange={(e) => setNewInterest(e.target.value)}
                       placeholder="Add custom interest..."
-                      className="flex-1 px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 placeholder-gray-500"
+                      className="w-full flex-1 px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 placeholder-gray-500"
                       disabled={interests.length >= 5}
                     />
                     <button

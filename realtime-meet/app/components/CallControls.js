@@ -24,7 +24,7 @@ export default function CallControls({
   onReaction,
 }) {
   return (
-    <div className="pointer-events-auto inline-flex items-center gap-2 rounded-b-[1.75rem] justify-center shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl sm:px-4 py-1 w-content">
+    <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2 rounded-b-[1.75rem] px-3 py-3 shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl sm:px-4 sm:py-2">
       <button
         onClick={onToggleAudio}
         className={`flex h-11 w-11 items-center justify-center rounded-full border transition ${
