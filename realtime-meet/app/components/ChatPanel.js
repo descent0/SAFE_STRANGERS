@@ -18,6 +18,7 @@ export default function ChatPanel({
   connectionStatus,
 }) {
   const feedRef = useRef(null)
+  const partnerName = partner?.name || 'Stranger'
 
   useEffect(() => {
     if (feedRef.current) {

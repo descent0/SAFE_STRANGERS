@@ -40,7 +40,8 @@ export function ChatContent() {
         leaveChat,
     } = useMatchUser(sessionId, chatMode)
 
-    const isMatched = connectionStatus === CONNECTION_STATES.MATCHED
+    const isMatched = connectionStatus === CONNECTION_STATES.MATCHED || Boolean(partner?.id)
+    const displayConnectionStatus = isMatched ? CONNECTION_STATES.MATCHED : connectionStatus
 
     const {
         messages,
@@ -55,6 +56,11 @@ export function ChatContent() {
         createPeerConnection,
         removePeer,
     } = useWebRTC()
+
+    const isChatConnected =
+        chatMode === 'text'
+            ? isMatched
+            : isMatched && rtcStatus === 'connected'
 
     useEffect(() => {
         if (chatMode === 'video' || chatMode === 'voice') {
@@ -208,7 +214,7 @@ export function ChatContent() {
                         <VideoPanel
                             mode={chatMode}
                             isMatched={isMatched}
-                            connectionStatus={connectionStatus}
+                            connectionStatus={displayConnectionStatus}
                             rtcStatus={rtcStatus}
                             localVideoRef={localVideoRef}
                             remoteVideoRef={remoteVideoRef}
@@ -237,14 +243,14 @@ export function ChatContent() {
                         <ChatPanel
                             partner={partner}
                             sessionId={sessionId}
-                            isConnected={isMatched}
+                            isConnected={isChatConnected}
                             messages={messages}
                             currentMessage={currentMessage}
                             onChangeMessage={handleMessageChange}
                             onSendMessage={handleSendMessage}
                             onQuickReaction={handleReactionEmit}
                             isPartnerTyping={isPartnerTyping}
-                            connectionStatus={connectionStatus}
+                            connectionStatus={displayConnectionStatus}
                         />
                     </div>
                 </div>

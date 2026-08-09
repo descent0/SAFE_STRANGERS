@@ -2,6 +2,7 @@
 
 import React from 'react'
 import VideoWaiting from './waiting/VideoWaiting'
+import { getStatusMessage } from '../const/statusMessages'
 
 export default function VideoPanel({
   mode,
@@ -13,12 +14,21 @@ export default function VideoPanel({
   remoteStream,
   isVideoOff,
 }) {
+  const statusLabel = isMatched
+    ? rtcStatus === 'connected'
+      ? 'Connected'
+      : rtcStatus === 'connecting'
+        ? 'Connecting'
+        : 'Disconnected'
+    : getStatusMessage(connectionStatus)
 
-  const statusLabel = rtcStatus === 'connected'
-    ? 'Connected'
-    : rtcStatus === 'connecting'
-      ? 'Connecting'
-      : 'Disconnected'
+  const statusToneClass = isMatched
+    ? rtcStatus === 'connected'
+      ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'
+      : rtcStatus === 'connecting'
+        ? 'border-amber-400/30 bg-amber-400/10 text-amber-200'
+        : 'border-rose-400/30 bg-rose-400/10 text-rose-200'
+    : 'border-sky-400/30 bg-sky-400/10 text-sky-200'
 
   return (
     <div className={`relative flex-1 min-h-[24rem] overflow-hidden ${mode === 'text' ? 'hidden' : ''}`}>
@@ -69,13 +79,7 @@ export default function VideoPanel({
             Secure session
           </div>
            <div
-            className={`absolute left-4 top-4 z-10 rounded-full border border-white/10 bg-slate-950/70 px-3 py-1 text-xs font-medium text-slate-200 backdrop-blur-xl ${
-              rtcStatus === 'connected'
-                ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-200'
-                : rtcStatus === 'connecting'
-                  ? 'border-amber-400/30 bg-amber-400/10 text-amber-200'
-                  : 'border-rose-400/30 bg-rose-400/10 text-rose-200'
-            }`}
+            className={`absolute left-4 top-4 z-10 rounded-full border border-white/10 bg-slate-950/70 px-3 py-1 text-xs font-medium text-slate-200 backdrop-blur-xl ${statusToneClass}`}
           >
             {statusLabel}
           </div>
