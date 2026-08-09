@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react"
-import { getSocketInstance } from "../services/socket/socketManager"
+import { getSocketInstance } from "../services/socketManager"
 
 export const useChatMessaging = (
   sessionId,

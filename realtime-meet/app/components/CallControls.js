@@ -1,5 +1,17 @@
 'use client'
 
+import {
+  FiHeart,
+  FiMic,
+  FiMicOff,
+  FiPhoneOff,
+  FiSkipForward,
+  FiSmile,
+  FiThumbsUp,
+  FiVideo,
+  FiVideoOff,
+} from 'react-icons/fi'
+
 export default function CallControls({
   mode,
   isMatched,
@@ -9,78 +21,81 @@ export default function CallControls({
   onToggleVideo,
   onSkip,
   onLeave,
-  onReaction
+  onReaction,
 }) {
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
-      <div className="flex items-center gap-3 bg-gray-900/90 backdrop-blur-sm px-4 py-3 rounded-full border border-gray-700">
+    <div className="pointer-events-auto inline-flex items-center gap-2 rounded-b-[1.75rem] justify-center shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl sm:px-4 py-1 w-content">
+      <button
+        onClick={onToggleAudio}
+        className={`flex h-11 w-11 items-center justify-center rounded-full border transition ${
+          isAudioMuted
+            ? 'border-rose-400/30 bg-rose-500/15 text-rose-200 hover:bg-rose-500/25'
+            : 'border-white/10 bg-white/8 text-white/90 hover:bg-white/12'
+        }`}
+        aria-label="Toggle audio"
+      >
+        {isAudioMuted ? <FiMicOff size={18} /> : <FiMic size={18} />}
+      </button>
 
-        {/* Audio */}
+      {mode === 'video' && (
         <button
-          onClick={onToggleAudio}
-          className={`w-12 h-12 rounded-full flex items-center justify-center transition ${
-            isAudioMuted
-              ? 'bg-red-600 hover:bg-red-700'
-              : 'bg-gray-700 hover:bg-gray-600'
+          onClick={onToggleVideo}
+          className={`flex h-11 w-11 items-center justify-center rounded-full border transition ${
+            isVideoOff
+              ? 'border-rose-400/30 bg-rose-500/15 text-rose-200 hover:bg-rose-500/25'
+              : 'border-white/10 bg-white/8 text-white/90 hover:bg-white/12'
           }`}
+          aria-label="Toggle video"
         >
-          {isAudioMuted ? '🔇' : '🎤'}
+          {isVideoOff ? <FiVideoOff size={18} /> : <FiVideo size={18} />}
         </button>
+      )}
 
-        {/* Video */}
-        {mode === 'video' && (
-          <button
-            onClick={onToggleVideo}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition ${
-              isVideoOff
-                ? 'bg-red-600 hover:bg-red-700'
-                : 'bg-gray-700 hover:bg-gray-600'
-            }`}
-          >
-            {isVideoOff ? '📷❌' : '📷'}
-          </button>
-        )}
+      <div className="hidden h-8 w-px bg-white/10 sm:block" />
 
-        {/* Reactions */}
+      <button
+        onClick={() => onReaction?.('❤️')}
+        className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/8 text-xl transition hover:bg-white/12"
+        aria-label="Send heart reaction"
+      >
+        <FiHeart size={18} />
+      </button>
+
+      <button
+        onClick={() => onReaction?.('😂')}
+        className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/8 text-xl transition hover:bg-white/12"
+        aria-label="Send laugh reaction"
+      >
+        <FiSmile size={18} />
+      </button>
+
+      <button
+        onClick={() => onReaction?.('👍')}
+        className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/8 text-xl transition hover:bg-white/12"
+        aria-label="Send thumbs up reaction"
+      >
+        <FiThumbsUp size={18} />
+      </button>
+
+      {isMatched && (
         <button
-          onClick={() => onReaction?.('❤️')}
-          className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center"
+          onClick={onSkip}
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-amber-400/20 bg-amber-400/10 text-amber-100 transition hover:bg-amber-400/20"
+          aria-label="Skip partner"
+          title='Skip Partner'
         >
-          ❤️
+          <FiSkipForward size={18} />
         </button>
+      )}
 
-        <button
-          onClick={() => onReaction?.('😂')}
-          className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center"
-        >
-          😂
-        </button>
-
-        <button
-          onClick={() => onReaction?.('👍')}
-          className="w-12 h-12 rounded-full bg-gray-700 hover:bg-gray-600 flex items-center justify-center"
-        >
-          👍
-        </button>
-
-        {/* Skip */}
-        {isMatched && (
-          <button
-            onClick={onSkip}
-            className="w-12 h-12 rounded-full bg-yellow-600 hover:bg-yellow-700 flex items-center justify-center"
-          >
-            ⏭️
-          </button>
-        )}
-
-        {/* Leave */}
-        <button
-          onClick={onLeave}
-          className="w-12 h-12 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center"
-        >
-          📞
-        </button>
-      </div>
+      <button
+        onClick={onLeave}
+        className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-r from-rose-500 to-red-600 text-white shadow-lg shadow-rose-500/20 transition hover:brightness-110"
+        aria-label="Leave chat"
+        title="Leave chat"
+      >
+        <FiPhoneOff size={18} />
+      </button>
     </div>
   )
 }

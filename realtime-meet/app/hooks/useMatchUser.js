@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import {
   getSocketInstance,
   disconnectSocket
-} from '../services/socket/socketManager'
+} from '../services/socketManager'
 
 import { CONNECTION_STATES } from '../const/socket'
 

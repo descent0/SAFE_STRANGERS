@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 
 import { WEBRTC_CONFIG, WEBRTC_STATES } from '../const/webRTCConst'
 import { getLocalStream } from '../services/mediaManager'
-import { getSocketInstance } from '../services/socket/socketManager'
+import { getSocketInstance } from '../services/socketManager'
 
 export const useWebRTC = () => {
   const socket = getSocketInstance()
