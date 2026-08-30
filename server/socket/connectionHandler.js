@@ -1,159 +1,22 @@
-const ServerState = require('../state/serverState');
-const PoolManager = require('../managers/poolManager');
-const MatchManager = require('../managers/matchManager');
-const { CONFIG } = require('../config/constants');
+const ServerState = require('../state/serverState')
+const PoolManager = require('../managers/poolManager')
+const MatchManager = require('../managers/matchManager')
+const { CONFIG } = require('../config/constants')
+const { cleanupUser, requeueUserImmediate } = require('../lifecycle/cleanup')
 
-module.exports = function registerConnectionHandlers({ io, socket, webrtcConnections }) {
-  
-  // Local Orchestration: Clean out reference footprints when a user drops off
-  const cleanupUser = (socketId) => {
-    const user = ServerState.connectedUsers.get(socketId);
-    
-    const queueIndex = ServerState.waitingQueue.findIndex(u => u.socketId === socketId);
-    if (queueIndex !== -1) {
-      ServerState.waitingQueue.splice(queueIndex, 1);
-      console.log(`Removed ${socketId.slice(-4)} from queue. Size: ${ServerState.waitingQueue.length}`);
-    }
-    
-    const partnerId = ServerState.activeChats.get(socketId);
-    if (partnerId) {
-      handlePartnerDisconnect(socketId, partnerId);
-    }
-    
-    for (const [connectionKey, connection] of webrtcConnections.entries()) {
-      if (connection.initiator === socketId || connection.receiver === socketId) {
-        webrtcConnections.delete(connectionKey);
-      }
+module.exports = function registerConnectionHandlers({ io, socket }) {
+  const getCurrentUser = () => ServerState.connectedUsers.get(socket.id)
+
+  const assertSessionOwnership = (sessionId, eventName) => {
+    const currentUser = getCurrentUser()
+
+    if (!currentUser?.sessionId || !sessionId || currentUser.sessionId !== sessionId) {
+      socket.emit('error', { message: `Invalid session for ${eventName}` })
+      return false
     }
 
-    if (user?.sessionId) {
-      ServerState.userSessions.delete(user.sessionId);
-    }
-   
-    ServerState.connectedUsers.delete(socketId);
-
-    // Structural cleanups for residual state anomalies
-    for (const [otherId, otherUser] of ServerState.connectedUsers.entries()) {
-      if (otherUser.partnerId === socketId) {
-        otherUser.hasPartner = false;
-        otherUser.isInQueue = false;
-        delete otherUser.partnerId;
-      }
-    }
-    for (const [chatId, partnerId] of ServerState.activeChats.entries()) {
-      if (partnerId === socketId) {
-        ServerState.activeChats.delete(chatId);
-      }
-    }
-
-    console.log(`Cleaned user ${socketId.slice(-4)}. Active: ${ServerState.connectedUsers.size}, Queue: ${ServerState.waitingQueue.length}`);
-
-    if (ServerState.waitingQueue.length >= 2) {
-      PoolManager.processBatchMatching(io, ServerState, MatchManager);
-    }
-  };
-
-  const handlePartnerDisconnect = (socketId, partnerId) => {
-    const partnerSocket = io.sockets.sockets.get(partnerId);
-    const partnerUser = ServerState.connectedUsers.get(partnerId);
-    
-    if (partnerSocket && partnerUser) {
-      console.log(`Notifying ${partnerId.slice(-4)} that partner disconnected`);
-      partnerSocket.emit('partner-disconnected');
-      
-      MatchManager.updateUserStatus(partnerId, null, false, ServerState);
-      
-      setTimeout(() => {
-        autoRequeuePartner(partnerId, partnerUser, partnerSocket);
-      }, 1000);
-    }
-    
-    ServerState.activeChats.delete(socketId);
-    ServerState.activeChats.delete(partnerId);
-  };
-
-  const autoRequeuePartner = (partnerId, partnerUser, partnerSocket) => {
-    if (ServerState.connectedUsers.has(partnerId) && partnerSocket.connected) {
-      const partnerForQueue = {
-        socketId: partnerId,
-        sessionId: partnerUser.sessionId,
-        interests: partnerUser.interests || [],
-        chatMode: partnerUser.chatMode,
-        safeMode: partnerUser.safeMode || false,
-        joinedAt: new Date(),
-        isInQueue: true,
-        hasPartner: false,
-        fromDisconnect: true
-      };
-      
-      const immediateMatch = PoolManager.findImmediateMatch(partnerForQueue, io, ServerState);
-      if (immediateMatch) {
-        const matchIndex = ServerState.waitingQueue.findIndex(u => u.socketId === immediateMatch.socketId);
-        if (matchIndex !== -1) {
-          ServerState.waitingQueue.splice(matchIndex, 1);
-        }
-        MatchManager.create(partnerForQueue, immediateMatch, io, ServerState);
-      } else {
-        PoolManager.addToPool(partnerForQueue, ServerState);
-        const poolStats = PoolManager.getPoolStats(ServerState);
-        partnerSocket.emit('queued-for-match', {
-          position: ServerState.waitingQueue.length,
-          estimatedWait: Math.max(CONFIG.QUEUE.MIN_ESTIMATED_WAIT, ServerState.waitingQueue.length * CONFIG.QUEUE.ESTIMATED_WAIT_PER_POSITION),
-          totalInQueue: ServerState.waitingQueue.length,
-          reconnected: true,
-          poolInfo: {
-            bufferSize: poolStats.bufferSize,
-            nextBatchIn: CONFIG.POOL.BATCH_MATCHING_INTERVAL / 1000
-          }
-        });
-      }
-    }
-  };
-
-  const requeueUserImmediate = (targetSocket, targetUser) => {
-    if (targetUser.hasPartner || targetUser.isInQueue) return;
-    
-    const userForQueue = {
-      socketId: targetSocket.id,
-      sessionId: targetUser.sessionId,
-      interests: targetUser.interests || [],
-      chatMode: targetUser.chatMode,
-      safeMode: targetUser.safeMode || false,
-      joinedAt: new Date(),
-      isInQueue: true,
-      hasPartner: false,
-      lastSkipped: targetUser.lastSkipped,
-      fromSkip: true
-    };
-    
-    targetUser.isInQueue = true;
-    targetUser.hasPartner = false;
-    
-    const immediateMatch = PoolManager.findImmediateMatch(userForQueue, io, ServerState);
-    if (immediateMatch) {
-      const matchIndex = ServerState.waitingQueue.findIndex(u => u.socketId === immediateMatch.socketId);
-      if (matchIndex !== -1) {
-        ServerState.waitingQueue.splice(matchIndex, 1);
-      }
-      MatchManager.create(userForQueue, immediateMatch, io, ServerState);
-    } else {
-      PoolManager.addToPool(userForQueue, ServerState);
-      const poolStats = PoolManager.getPoolStats(ServerState);
-      targetSocket.emit('queued-for-match', {
-        position: 1,
-        estimatedWait: 5,
-        totalInQueue: ServerState.waitingQueue.length,
-        skipped: true,
-        priority: true,
-        poolInfo: {
-          bufferSize: poolStats.bufferSize,
-          nextBatchIn: 3
-        }
-      });
-    }
-  };
-
-  // --- Socket Event Binding Hooks ---
+    return true
+  }
 
   socket.on('join-anonymous-chat', ({ sessionId, interests = [], chatMode, safeMode = false }) => {
     const existingUser = ServerState.connectedUsers.get(socket.id);
@@ -161,7 +24,7 @@ module.exports = function registerConnectionHandlers({ io, socket, webrtcConnect
     
     const existingSocketId = ServerState.userSessions.get(sessionId);
     if (existingSocketId && existingSocketId !== socket.id) {
-      cleanupUser(existingSocketId);
+      cleanupUser(existingSocketId, io);
     }
     
     const user = {
@@ -205,7 +68,11 @@ module.exports = function registerConnectionHandlers({ io, socket, webrtcConnect
     });
   });
 
-  socket.on('skip-partner', () => {
+  socket.on('skip-partner', ({ sessionId }) => {
+    if (!assertSessionOwnership(sessionId, 'skip-partner')) {
+      return
+    }
+
     const partnerId = ServerState.activeChats.get(socket.id);
     if (!partnerId) {
       socket.emit('error', { message: 'No active partner to skip' });
@@ -240,21 +107,16 @@ module.exports = function registerConnectionHandlers({ io, socket, webrtcConnect
       socket.emit('partner-disconnected');
       
       if (currentUser && ServerState.connectedUsers.has(socket.id)) {
-        requeueUserImmediate(socket, currentUser);
+        requeueUserImmediate(socket, currentUser, io)
       }
       if (partnerUser && ServerState.connectedUsers.has(partnerId) && partnerSocket) {
-        requeueUserImmediate(partnerSocket, partnerUser);
+        requeueUserImmediate(partnerSocket, partnerUser, io)
       }
     }, 100);
   });
 
-  socket.on('heartbeat', () => {
-    const user = ServerState.connectedUsers.get(socket.id);
-    if (user) user.lastActivity = new Date();
-  });
-
   socket.on('disconnect', (reason) => {
     console.log(`Socket left: ${socket.id}, reason: ${reason}`);
-    cleanupUser(socket.id);
+    cleanupUser(socket.id, io)
   });
 };

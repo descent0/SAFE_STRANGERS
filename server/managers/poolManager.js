@@ -189,7 +189,7 @@ const PoolManager = {
   getPoolStats(ServerState) {
     const queueLength = ServerState.waitingQueue.length
     const bufferSize = this.getBufferSize(queueLength)
-    const matchable = Math.max(0, queueLength - bufferSize)
+    const matchable = Math.max(0, queueLength)
     
     return {
       totalInQueue: queueLength,

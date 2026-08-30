@@ -1,7 +1,6 @@
-const ServerState = require('../state/serverState');
+const ServerState = require('../state/serverState')
 
-module.exports = function registerSignalingHandlers({ io, socket, webrtcConnections }) {
-  
+module.exports = function registerSignalingHandlers({ io, socket }) {
   socket.on('offer', ({ offer, to }) => {
     const partnerId = ServerState.activeChats.get(socket.id);
     if (partnerId !== to) {
@@ -51,24 +50,6 @@ module.exports = function registerSignalingHandlers({ io, socket, webrtcConnecti
     const targetSocket = io.sockets.sockets.get(to);
     if (targetSocket) {
       targetSocket.emit('ice-candidate', { candidate, from: socket.id });
-    }
-  });
-
-  socket.on('webrtc-connection-state', ({ partnerId, state }) => {
-    const connectionKey = [socket.id, partnerId].sort().join('-');
-    webrtcConnections.set(connectionKey, {
-      initiator: socket.id,
-      receiver: partnerId,
-      state: state,
-      timestamp: Date.now()
-    });
-    
-    if (state === 'failed' || state === 'disconnected') {
-      const partnerSocket = io.sockets.sockets.get(partnerId);
-      if (partnerSocket) {
-        partnerSocket.emit('webrtc-connection-failed', { from: socket.id });
-      }
-      socket.emit('webrtc-connection-failed', { from: partnerId });
     }
   });
 };
