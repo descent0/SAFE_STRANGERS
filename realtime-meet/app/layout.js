@@ -7,7 +7,7 @@ export const metadata = {
   title: 'Anonymous Chat - Meet Random Strangers Online',
   description: 'Connect instantly with strangers worldwide. Anonymous video chat, voice calls, and text messaging with interest-based matching.',
   icons: {
-    icon: '/fav.png', 
+    icon: '/favo.png', 
   },
 }
 

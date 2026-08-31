@@ -114,10 +114,10 @@ export default function Home() {
   
       <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+          <div className="flex justify-between items-center py-2">
             <div className="flex items-center space-x-3">
               <div className="text-4xl font-bold bg-contain">
-                <img width="100px" src="/{AAAA2E79-65D5-4354-8E3E-66D83DA7DAF3}-Photoroom.png" alt="Safe stranger" />
+                <img width="150px" src="/brand_logo.png" alt="Safe stranger" />
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-8">
