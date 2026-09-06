@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
@@ -114,10 +115,10 @@ export default function Home() {
   
       <nav className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+          <div className="flex justify-between items-center py-2">
             <div className="flex items-center space-x-3">
               <div className="text-4xl font-bold bg-contain">
-                <img width="100px" src="/{AAAA2E79-65D5-4354-8E3E-66D83DA7DAF3}-Photoroom.png" alt="Safe stranger" />
+                <Image src="/brand_logo.png" alt="Safe stranger" width={150} height={42} priority />
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-8">
@@ -176,7 +177,7 @@ export default function Home() {
                   <label className="block text-sm font-semibold text-gray-800 mb-3">
                     Choose Your Experience
                   </label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                     {[
                       { mode: 'video', icon: '🎥', label: 'Video' },
                       { mode: 'voice', icon: '🎙️', label: 'Voice' },
@@ -225,7 +226,7 @@ export default function Home() {
                   )}
                   
                 
-                  <div className="grid grid-cols-3 gap-2 text-xs mb-3">
+                  <div className="mb-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
                     {availableInterests.slice(0, 6).map((interest) => (
                       <button
                         key={interest}
@@ -240,13 +241,13 @@ export default function Home() {
 
                   
                  
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:space-x-2 sm:gap-0">
                     <input
                       type="text"
                       value={newInterest}
                       onChange={(e) => setNewInterest(e.target.value)}
                       placeholder="Add custom interest..."
-                      className="flex-1 px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 placeholder-gray-500"
+                      className="w-full flex-1 px-3 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-800 placeholder-gray-500"
                       disabled={interests.length >= 5}
                     />
                     <button
@@ -363,7 +364,7 @@ export default function Home() {
                 Advanced Safety Features
               </h2>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed font-medium">
-                We've implemented industry-leading safety measures to ensure every conversation is secure, respectful, and enjoyable.
+                We have implemented industry-leading safety measures to ensure every conversation is secure, respectful, and enjoyable.
               </p>
               
               <div className="space-y-4">

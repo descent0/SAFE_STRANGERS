@@ -9,7 +9,7 @@ export default function SafetyModal({ isVisible, onClose, onAccept }) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-lg bg-white">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">🛡️ Safety Guidelines & Community Rules</h2>
@@ -29,8 +29,8 @@ export default function SafetyModal({ isVisible, onClose, onAccept }) {
                 <li>• <strong>No harassment or bullying</strong> - Respect others and treat them with kindness</li>
                 <li>• <strong>No hate speech</strong> - Content targeting race, religion, gender, sexuality, or other characteristics</li>
                 <li>• <strong>No violence or threats</strong> - Including threats of self-harm or harm to others</li>
-                <li>• <strong>No illegal activities</strong> - Don't discuss or promote illegal activities</li>
-                <li>• <strong>No spam or commercial content</strong> - Don't advertise products or services</li>
+                <li>• <strong>No illegal activities</strong> - Do not discuss or promote illegal activities</li>
+                <li>• <strong>No spam or commercial content</strong> - Do not advertise products or services</li>
                 <li>• <strong>No minors (under 18)</strong> - This platform is for adults only</li>
               </ul>
             </section>
@@ -41,7 +41,7 @@ export default function SafetyModal({ isVisible, onClose, onAccept }) {
                 <li>• <strong>Keep personal information private</strong> - Never share your real name, address, phone number, or social media</li>
                 <li>• <strong>Use the skip button freely</strong> - If you feel uncomfortable, skip to the next person immediately</li>
                 <li>• <strong>Report inappropriate behavior</strong> - Help keep the community safe by reporting violations</li>
-                <li>• <strong>Be respectful and kind</strong> - Treat others as you'd like to be treated</li>
+                <li>• <strong>Be respectful and kind</strong> - Treat others as you would like to be treated</li>
                 <li>• <strong>End conversations gracefully</strong> - If you need to leave, say goodbye politely</li>
                 <li>• <strong>Trust your instincts</strong> - If something feels wrong, disconnect immediately</li>
               </ul>
@@ -50,7 +50,7 @@ export default function SafetyModal({ isVisible, onClose, onAccept }) {
             <section>
               <h3 className="text-lg font-semibold text-blue-600 mb-3">🔒 Privacy & Security</h3>
               <ul className="space-y-2 text-sm">
-                <li>• <strong>All chats are anonymous</strong> - We don't store personal information or chat history</li>
+                <li>• <strong>All chats are anonymous</strong> - We do not store personal information or chat history</li>
                 <li>• <strong>Conversations are not recorded</strong> - Your video and audio calls are peer-to-peer</li>
                 <li>• <strong>Use strong device security</strong> - Ensure your device is secure and up-to-date</li>
                 <li>• <strong>Be aware of screen recording</strong> - Others might record conversations, so be cautious</li>
@@ -64,7 +64,7 @@ export default function SafetyModal({ isVisible, onClose, onAccept }) {
                 <li>• <strong>Emergency situations</strong> - Contact local emergency services (911, 999, etc.)</li>
                 <li>• <strong>Report users</strong> - Use the report button to flag inappropriate behavior</li>
                 <li>• <strong>Block users</strong> - Prevent specific users from contacting you again</li>
-                <li>• <strong>Mental health resources</strong> - If you're struggling, reach out to mental health professionals</li>
+                <li>• <strong>Mental health resources</strong> - If you are struggling, reach out to mental health professionals</li>
               </ul>
             </section>
 
