@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 
 import { WEBRTC_CONFIG, WEBRTC_STATES } from '../const/webRTCConst'
-import { getLocalStream } from '../services/mediaManager'
+import { getLocalStream, initializeMedia } from '../services/mediaManager'
 import { getSocketInstance } from '../services/socketManager'
 
 export const useWebRTC = () => {
@@ -11,31 +11,50 @@ export const useWebRTC = () => {
   const [connectionStatus, setConnectionStatus] = useState(WEBRTC_STATES.DISCONNECTED)
 
   const peerConnectionRef = useRef(null)
-  const iceCandidateQueue = useRef([])
+  const activePeerIdRef = useRef(null)
+  const iceCandidateQueue = useRef({})
+
+  const getQueuedCandidates = useCallback((peerId) => {
+    if (!peerId) return []
+    if (!iceCandidateQueue.current[peerId]) {
+      iceCandidateQueue.current[peerId] = []
+    }
+    return iceCandidateQueue.current[peerId]
+  }, [])
 
   const removePeer = useCallback(() => {
     if (peerConnectionRef.current) {
+      peerConnectionRef.current.ontrack = null
+      peerConnectionRef.current.onicecandidate = null
+      peerConnectionRef.current.onconnectionstatechange = null
       peerConnectionRef.current.close()
       peerConnectionRef.current = null
     }
-    iceCandidateQueue.current = []
+    activePeerIdRef.current = null
+    iceCandidateQueue.current = {}
     setRemoteStream(null)
     setConnectionStatus(WEBRTC_STATES.DISCONNECTED)
   }, [])
 
   const createPeerConnection = useCallback(
     async (peerId, isInitiator = false) => {
-      if (!socket) return null
+      if (!socket || !peerId) return null
+
+      if (peerConnectionRef.current && activePeerIdRef.current !== peerId) {
+        removePeer()
+      }
+
       if (peerConnectionRef.current) return peerConnectionRef.current
 
-      const stream = getLocalStream()
+      const stream = getLocalStream() || await initializeMedia().catch(() => null)
       if (!stream) {
-        console.error('No local media stream available')
+        setConnectionStatus(WEBRTC_STATES.DISCONNECTED)
         return null
       }
 
       const pc = new RTCPeerConnection(WEBRTC_CONFIG)
       peerConnectionRef.current = pc
+      activePeerIdRef.current = peerId
       setConnectionStatus(WEBRTC_STATES.CONNECTING)
 
       stream.getTracks().forEach((track) => {
@@ -65,15 +84,6 @@ export const useWebRTC = () => {
         }
       }
 
-      for (const candidate of iceCandidateQueue.current) {
-        try {
-          await pc.addIceCandidate(candidate)
-        } catch (err) {
-          console.error('Failed to add queued ICE candidate:', err)
-        }
-      }
-      iceCandidateQueue.current = []
-
       if (isInitiator) {
         try {
           const offer = await pc.createOffer()
@@ -100,11 +110,25 @@ export const useWebRTC = () => {
     if (!socket) return
 
     const handleOffer = async ({ offer, from }) => {
+      if (activePeerIdRef.current && activePeerIdRef.current !== from) {
+        return
+      }
+
       const pc = await createPeerConnection(from, false)
       if (!pc) return
 
       try {
         await pc.setRemoteDescription(offer)
+
+        const queuedCandidates = getQueuedCandidates(from).splice(0)
+        for (const candidate of queuedCandidates) {
+          try {
+            await pc.addIceCandidate(candidate)
+          } catch (err) {
+            console.error('Failed to add queued ICE candidate:', err)
+          }
+        }
+
         const answer = await pc.createAnswer()
         await pc.setLocalDescription(answer)
 
@@ -117,7 +141,11 @@ export const useWebRTC = () => {
       }
     }
 
-    const handleAnswer = async ({ answer }) => {
+    const handleAnswer = async ({ answer, from }) => {
+      if (from && activePeerIdRef.current && activePeerIdRef.current !== from) {
+        return
+      }
+
       const pc = peerConnectionRef.current
       if (!pc) return
 
@@ -128,11 +156,18 @@ export const useWebRTC = () => {
       }
     }
 
-    const handleIceCandidate = async ({ candidate }) => {
+    const handleIceCandidate = async ({ candidate, from }) => {
+      if (from && activePeerIdRef.current && activePeerIdRef.current !== from) {
+        return
+      }
+
       const pc = peerConnectionRef.current
 
       if (!pc || !pc.remoteDescription?.type) {
-        iceCandidateQueue.current.push(candidate)
+        const peerId = from || activePeerIdRef.current
+        if (peerId) {
+          getQueuedCandidates(peerId).push(candidate)
+        }
         return
       }
 
@@ -153,7 +188,7 @@ export const useWebRTC = () => {
       socket.off('answer', handleAnswer)
       socket.off('ice-candidate', handleIceCandidate)
     }
-  }, [socket, createPeerConnection, removePeer])
+  }, [socket, createPeerConnection, removePeer, getQueuedCandidates])
 
 
   return {

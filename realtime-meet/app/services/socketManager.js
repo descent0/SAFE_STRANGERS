@@ -1,6 +1,8 @@
 
 
 import { io } from "socket.io-client";
+
+const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3001";
 const SOCKET_CONFIG = {
   transports: ['websocket'],
   timeout: 5000,
@@ -10,7 +12,7 @@ let socket = null;
 
 export const connectSocket = () => {
   if (!socket) {
-    socket = io(process.env.NEXT_PUBLIC_SOCKET_URL,SOCKET_CONFIG);
+    socket = io(socketUrl, SOCKET_CONFIG);
   }
   
 

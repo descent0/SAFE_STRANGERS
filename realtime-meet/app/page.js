@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { v4 as uuidv4 } from 'uuid'
@@ -117,7 +118,7 @@ export default function Home() {
           <div className="flex justify-between items-center py-2">
             <div className="flex items-center space-x-3">
               <div className="text-4xl font-bold bg-contain">
-                <img width="150px" src="/brand_logo.png" alt="Safe stranger" />
+                <Image src="/brand_logo.png" alt="Safe stranger" width={150} height={42} priority />
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-8">
@@ -363,7 +364,7 @@ export default function Home() {
                 Advanced Safety Features
               </h2>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed font-medium">
-                We've implemented industry-leading safety measures to ensure every conversation is secure, respectful, and enjoyable.
+                We have implemented industry-leading safety measures to ensure every conversation is secure, respectful, and enjoyable.
               </p>
               
               <div className="space-y-4">

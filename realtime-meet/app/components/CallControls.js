@@ -53,29 +53,33 @@ export default function CallControls({
 
       <div className="hidden h-8 w-px bg-white/10 sm:block" />
 
-      <button
-        onClick={() => onReaction?.('❤️')}
-        className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/8 text-xl transition hover:bg-white/12"
-        aria-label="Send heart reaction"
-      >
-        <FiHeart size={18} />
-      </button>
+      {mode !== 'text' && (
+        <>
+          <button
+            onClick={() => onReaction?.('❤️')}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/8 text-xl transition hover:bg-white/12"
+            aria-label="Send heart reaction"
+          >
+            <FiHeart size={18} />
+          </button>
 
-      <button
-        onClick={() => onReaction?.('😂')}
-        className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/8 text-xl transition hover:bg-white/12"
-        aria-label="Send laugh reaction"
-      >
-        <FiSmile size={18} />
-      </button>
+          <button
+            onClick={() => onReaction?.('😂')}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/8 text-xl transition hover:bg-white/12"
+            aria-label="Send laugh reaction"
+          >
+            <FiSmile size={18} />
+          </button>
 
-      <button
-        onClick={() => onReaction?.('👍')}
-        className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/8 text-xl transition hover:bg-white/12"
-        aria-label="Send thumbs up reaction"
-      >
-        <FiThumbsUp size={18} />
-      </button>
+          <button
+            onClick={() => onReaction?.('👍')}
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/8 text-xl transition hover:bg-white/12"
+            aria-label="Send thumbs up reaction"
+          >
+            <FiThumbsUp size={18} />
+          </button>
+        </>
+      )}
 
       {isMatched && (
         <button

@@ -5,14 +5,15 @@ import { useSearchParams, useRouter } from 'next/navigation'
 
 import { getSocketInstance } from '../../services/socketManager'
 import { initializeMedia, getLocalStream, stopMedia } from '../../services/mediaManager'
-import { useMatchUser } from '../../hooks/useMatchUser'
 import { useChatMessaging } from '../../hooks/useChatSession'
 import { useWebRTC } from '../../hooks/useWebRTC2'
+import useNSFWDetection from '../../hooks/useNSFWDetection'
 import VideoPanel from '../VideoPanel'
 import ChatPanel from '../ChatPanel'
 import CallControls from '../CallControls'
 import { CONNECTION_STATES } from '../../const/socket'
 import { DEFAULT_CHAT_MODE } from '../../const/commonConst'
+import { useMatchUser } from '../../hooks/useMatchUser'
 
 export function ChatContent() {
     const searchParams = useSearchParams()
@@ -26,6 +27,9 @@ export function ChatContent() {
     const [reactions, setReactions] = useState([])
     const [currentMessage, setCurrentMessage] = useState('')
     const [isMediaReady, setIsMediaReady] = useState(false)
+    const [safeMode] = useState(() => (
+        typeof window !== 'undefined' && sessionStorage.getItem('safeMode') === 'true'
+    ))
 
     const localVideoRef = useRef(null)
     const remoteVideoRef = useRef(null)
@@ -35,12 +39,11 @@ export function ChatContent() {
         connectionStatus,
         partner,
         queuePosition,
-        joinAnonymousChat,
         skipPartner,
         leaveChat,
     } = useMatchUser(sessionId, chatMode)
 
-    const isMatched = connectionStatus === CONNECTION_STATES.MATCHED || Boolean(partner?.id)
+    const isMatched = connectionStatus === CONNECTION_STATES.MATCHED && Boolean(partner?.id)
     const displayConnectionStatus = isMatched ? CONNECTION_STATES.MATCHED : connectionStatus
 
     const {
@@ -57,13 +60,41 @@ export function ChatContent() {
         removePeer,
     } = useWebRTC()
 
+    const handleNSFWDetected = useCallback(() => {
+        console.warn('[NSFW] Safe mode ended the current chat')
+        removePeer()
+        stopMedia()
+        leaveChat()
+        router.push('/')
+    }, [leaveChat, removePeer, router])
+
+    useNSFWDetection(
+        remoteVideoRef,
+        handleNSFWDetected,
+        safeMode && (chatMode === 'video' || chatMode === 'voice')
+    )
+
+    useEffect(() => {
+        if (!partner?.id) {
+            removePeer()
+            stopMedia()
+            setIsMediaReady(false)
+            if (localVideoRef.current) {
+                localVideoRef.current.srcObject = null
+            }
+            if (remoteVideoRef.current) {
+                remoteVideoRef.current.srcObject = null
+            }
+        }
+    }, [partner?.id, removePeer])
+
     const isChatConnected =
         chatMode === 'text'
             ? isMatched
             : isMatched && rtcStatus === 'connected'
 
     useEffect(() => {
-        if (chatMode === 'video' || chatMode === 'voice') {
+        if (isMatched && (chatMode === 'video' || chatMode === 'voice')) {
             initializeMedia()
                 .then((stream) => {
                     if (stream && localVideoRef.current) {
@@ -81,7 +112,7 @@ export function ChatContent() {
             stopMedia()
             setIsMediaReady(false)
         }
-    }, [chatMode])
+    }, [chatMode, isMatched])
 
     useEffect(() => {
         if (
@@ -109,8 +140,6 @@ export function ChatContent() {
             return
         }
 
-        joinAnonymousChat()
-
         window.addReaction = (emoji) => {
             const reactionId = Date.now()
             setReactions(prev => [
@@ -133,7 +162,7 @@ export function ChatContent() {
             delete window.addReaction
             clearTimeout(typingTimeoutRef.current)
         }
-    }, [sessionId, router, joinAnonymousChat])
+    }, [sessionId, router])
 
     useEffect(() => () => {
         clearTimeout(typingTimeoutRef.current)
@@ -203,6 +232,19 @@ export function ChatContent() {
         socketInstance.emit('send-reaction', { to: partner.id, emoji })
         window.addReaction?.(emoji)
     }
+
+    useEffect(() => {
+        const socket = getSocketInstance()
+        if (!socket) return
+
+        const handleIncomingReaction = ({ emoji, from }) => {
+            if (!from || from === socket.id) return
+            window.addReaction?.(emoji)
+        }
+
+        socket.on('partner-reaction', handleIncomingReaction)
+        return () => socket.off('partner-reaction', handleIncomingReaction)
+    }, [])
 
     if (!sessionId) return null
     

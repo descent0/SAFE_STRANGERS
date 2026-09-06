@@ -54,13 +54,14 @@ Think of it as your new favorite way to meet people online. No awkward profiles.
 
 1. **Clone the repo** (or extract the files)
 ```bash
-cd realtime-meet
+cd SAFE_STRANGERS
 ```
 
 2. **Install dependencies**
 ```bash
 npm install
-cd server && npm install && cd ..
+cd server && npm install
+cd ../realtime-meet && npm install
 ```
 
 3. **Fire it up!** 🔥
@@ -70,7 +71,7 @@ npm run dev-all
 
 This starts both the Next.js frontend and the Express backend. Magic happens at:
 - **Frontend**: http://localhost:3000
-- **Backend**: http://localhost:5000
+- **Backend**: http://localhost:3001
 
 ### Just want to run one part?
 ```bash
@@ -97,13 +98,13 @@ realtime-meet/
 │   ├── page.js                  # Landing page
 │   └── globals.css              # Styling
 │
-├── server/                       # Express backend
+├── server/                       # TypeScript Socket.IO backend
 │   ├── managers/                # Business logic
 │   │   ├── matchManager.js      # Matching algorithm
 │   │   └── poolManager.js       # User pool management
 │   ├── utils/                   # Helper functions
 │   ├── config/                  # Configuration
-│   └── index.js                 # Server entry point
+│   └── index.ts                 # Server entry point
 │
 └── public/                       # Static assets
 ```

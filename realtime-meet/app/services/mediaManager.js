@@ -2,6 +2,7 @@ import { MEDIA_CONSTRAINTS, SCREEN_SHARE_CONSTRAINTS } from "../const/mediaConst
 
 let stream = null
 let mediaInitPromise = null
+let mediaRequestId = 0
 
 export const initializeMedia = async () => {
   if (stream) {
@@ -12,12 +13,19 @@ export const initializeMedia = async () => {
     return mediaInitPromise
   }
 
+  const requestId = ++mediaRequestId
   mediaInitPromise = navigator.mediaDevices.getUserMedia(
     MEDIA_CONSTRAINTS
   )
 
   try {
-    stream = await mediaInitPromise
+    const nextStream = await mediaInitPromise
+    if (requestId !== mediaRequestId) {
+      nextStream.getTracks().forEach(track => track.stop())
+      return null
+    }
+
+    stream = nextStream
     return stream
   } finally {
     mediaInitPromise = null
@@ -58,6 +66,8 @@ export const startScreenShare = async () => {
 }
 
 export const stopMedia = () => {
+  mediaRequestId += 1
+
   if (!stream) return
 
   stream.getTracks().forEach(track => {
