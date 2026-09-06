@@ -130,7 +130,11 @@ export function ChatContent() {
 
     useEffect(() => {
         if (remoteVideoRef.current && remoteStream) {
-            remoteVideoRef.current.srcObject = remoteStream
+            const video = remoteVideoRef.current
+            video.srcObject = remoteStream
+            video.play().catch((error) => {
+                console.warn('[WebRTC] Remote video playback was blocked:', error)
+            })
         }
     }, [remoteStream])
 
